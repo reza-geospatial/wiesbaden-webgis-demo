@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from sqlalchemy import create_engine, text
 import os
+from dotenv import load_dotenv
 
 router = APIRouter()
 
@@ -8,11 +9,13 @@ router = APIRouter()
 # DB CONFIG
 # =========================
 
-DB_USER = "REMOVED_DB_USER"
-DB_PASSWORD = "REMOVED_DB_PASSWORD"
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "webgis_demo"
+load_dotenv()
+
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
 
 engine = create_engine(
     f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
