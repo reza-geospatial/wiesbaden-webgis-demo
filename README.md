@@ -16,3 +16,10 @@ A demo WebGIS project focused on urban heat and green accessibility analysis for
 - `pipeline/` ETL scripts
 - `frontend/` WebGIS interface
 - `data/` raw and processed datasets
+
+## Current Progress
+
+- OSM data extraction (green areas)
+- Data cleaning pipeline
+- PostGIS integration
+- FastAPI endpoint (/green)
