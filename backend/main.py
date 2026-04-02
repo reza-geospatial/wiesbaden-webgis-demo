@@ -1,7 +1,6 @@
 from fastapi import FastAPI
+from backend.app.api.routes import router
 
-app = FastAPI(title='Wiesbaden WebGIS API')
+app = FastAPI(title="WebGIS API")
 
-@app.get("/health")
-def health():
-    return {"status":"ok"}
+app.include_router(router)
