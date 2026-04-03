@@ -28,6 +28,7 @@
       }).addTo(map);
 
       let geojsonLayer;
+      const zoom = map.getZoom();
 
       function style(feature) {
         return {
@@ -82,14 +83,9 @@
         const maxx = bounds.getEast();
         const maxy = bounds.getNorth();
 
-        console.log(minx, miny, maxx, maxy);
-        console.log(
-          `URL: http://127.0.0.1:8000/green?minx=${minx}&miny=${miny}&maxx=${maxx}&maxy=${maxy}`,
-        );
-
         // 2. gettting data from API
         fetch(
-          `http://127.0.0.1:8000/green?minx=${minx}&miny=${miny}&maxx=${maxx}&maxy=${maxy}`,
+          `http://127.0.0.1:8000/green?minx=${minx}&miny=${miny}&maxx=${maxx}&maxy=${maxy}&zoom=${zoom}`,
         )
           .then((res) => res.json())
           .then((data) => {
