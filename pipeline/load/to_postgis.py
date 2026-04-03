@@ -44,6 +44,12 @@ def main():
         if_exists="replace",
         index=False
     )
+    with engine.connect() as conn:
+        conn.execute(text(f"""
+            CREATE INDEX IF NOT EXISTS idx_{TABLE_NAME}_geom
+            ON {TABLE_NAME}
+            USING GIST (geometry);
+        """))
     with engine.begin() as conn:
         conn.execute(text(f"""
             ALTER TABLE {TABLE_NAME}
