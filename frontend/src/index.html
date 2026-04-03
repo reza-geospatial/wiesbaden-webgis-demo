@@ -52,17 +52,19 @@
 
             layer.bringToFront();
 
-            // popup on hover
             const props = layer.feature.properties;
+            console.log(layer.feature.properties);
 
-            let area = props.area ? (props.area / 10000).toFixed(2) : "N/A"; // hectare
+            let area = props.area ? (props.area / 10000).toFixed(2) : "N/A";
+
             let content = `
-            <b>Green Area</b><br/>
-            ID: ${props.id}<br/>
-            Type: ${props.leisure || props.landuse}<br/>
-            Area: ${area} ha
-            `;
-            layer.bindPopup("Green Area").openPopup();
+          <b>Green Area</b><br/>
+          ID: ${props.id || "N/A"}<br/>
+          Type: ${props.leisure || props.landuse || "unknown"}<br/>
+          Area: ${area} ha
+        `;
+
+            layer.bindPopup(content).openPopup();
           }
 
           function resetHighlight(e) {
@@ -76,7 +78,7 @@
               mouseout: resetHighlight,
             });
           }
-
+          console.log(data);
           geojsonLayer = L.geoJSON(data, {
             style: style,
             onEachFeature: onEachFeature,
