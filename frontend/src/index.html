@@ -27,65 +27,89 @@
         attribution: "© OpenStreetMap",
       }).addTo(map);
 
-      // 2. gettting data from API
-      fetch("http://127.0.0.1:8000/green")
-        .then((res) => res.json())
-        .then((data) => {
-          let geojsonLayer;
+      let geojsonLayer;
 
-          function style(feature) {
-            return {
-              color: "green",
-              weight: 1,
-              fillOpacity: 0.4,
-            };
-          }
+      function style(feature) {
+        return {
+          color: "green",
+          weight: 1,
+          fillOpacity: 0.4,
+        };
+      }
 
-          function highlightFeature(e) {
-            const layer = e.target;
+      function highlightFeature(e) {
+        const layer = e.target;
 
-            layer.setStyle({
-              weight: 2,
-              color: "#00FF00",
-              fillOpacity: 0.7,
-            });
-
-            layer.bringToFront();
-
-            const props = layer.feature.properties;
-            console.log(layer.feature.properties);
-
-            let area = props.area ? (props.area / 10000).toFixed(2) : "N/A";
-
-            let content = `
-          <b>Green Area</b><br/>
-          ID: ${props.id || "N/A"}<br/>
-          Type: ${props.leisure || props.landuse || "unknown"}<br/>
-          Area: ${area} ha
-        `;
-
-            layer.bindPopup(content).openPopup();
-          }
-
-          function resetHighlight(e) {
-            geojsonLayer.resetStyle(e.target);
-            e.target.closePopup();
-          }
-
-          function onEachFeature(feature, layer) {
-            layer.on({
-              mouseover: highlightFeature,
-              mouseout: resetHighlight,
-            });
-          }
-          console.log(data);
-          geojsonLayer = L.geoJSON(data, {
-            style: style,
-            onEachFeature: onEachFeature,
-          }).addTo(map);
-
-          map.fitBounds(geojsonLayer.getBounds());
+        layer.setStyle({
+          weight: 2,
+          color: "#00FF00",
+          fillOpacity: 0.7,
         });
+
+        layer.bringToFront();
+
+        const props = layer.feature.properties;
+        //console.log(layer.feature.properties);
+
+        let area = props.area ? (props.area / 10000).toFixed(2) : "N/A";
+
+        let content = `
+              <b>Green Area</b><br/>
+              ID: ${props.id || "N/A"}<br/>
+              Type: ${props.leisure || props.landuse || "unknown"}<br/>
+              Area: ${area} ha
+            `;
+
+        layer.bindPopup(content).openPopup();
+      }
+
+      function resetHighlight(e) {
+        geojsonLayer.resetStyle(e.target);
+        e.target.closePopup();
+      }
+      function onEachFeature(feature, layer) {
+        layer.on({
+          mouseover: highlightFeature,
+          mouseout: resetHighlight,
+        });
+      }
+      // MAIN FUNC
+      function loadData() {
+        const bounds = map.getBounds();
+
+        const minx = bounds.getWest();
+        const miny = bounds.getSouth();
+        const maxx = bounds.getEast();
+        const maxy = bounds.getNorth();
+
+        console.log(minx, miny, maxx, maxy);
+        console.log(
+          `URL: http://127.0.0.1:8000/green?minx=${minx}&miny=${miny}&maxx=${maxx}&maxy=${maxy}`,
+        );
+
+        // 2. gettting data from API
+        fetch(
+          `http://127.0.0.1:8000/green?minx=${minx}&miny=${miny}&maxx=${maxx}&maxy=${maxy}`,
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            // remove old layer
+            if (geojsonLayer) {
+              map.removeLayer(geojsonLayer);
+            }
+            // add new
+            geojsonLayer = L.geoJSON(data, {
+              style: style,
+              onEachFeature: onEachFeature,
+            }).addTo(map);
+          });
+      }
+
+      // initial load
+      loadData();
+
+      // reload on map move
+      map.on("moveend", loadData);
     </script>
   </body>
 </html>

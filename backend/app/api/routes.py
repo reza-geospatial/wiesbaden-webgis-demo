@@ -63,7 +63,12 @@ engine = create_engine(
 
 
 @router.get("/green")
-def get_green_areas(limit: int = 100):
+def get_green_areas(
+    minx: float,
+    miny: float,
+    maxx: float,
+    maxy: float
+    ):
 
     query = text("""
         SELECT 
@@ -73,11 +78,16 @@ def get_green_areas(limit: int = 100):
             ST_AsGeoJSON(geometry) AS geometry,
             ST_Area(ST_Transform(geometry, 25832)) AS area
         FROM green_areas
-        LIMIT :limit
+        WHERE geometry && ST_MakeEnvelope(:minx, :miny, :maxx, :maxy, 4326)
     """)
 
     with engine.connect() as conn:
-        result = conn.execute(query, {"limit": limit})
+        result = conn.execute(query, {
+            "minx": minx,
+            "miny": miny,
+            "maxx": maxx,
+            "maxy": maxy
+            })
 
         features = []
         for row in result:
