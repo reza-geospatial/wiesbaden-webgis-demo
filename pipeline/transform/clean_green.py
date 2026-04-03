@@ -1,7 +1,7 @@
 import geopandas as gpd
 
-INPUT_PATH = "data/raw/green_osm.geojson"
-OUTPUT_PATH = "data/processed/green_clean.geojson"
+INPUT_PATH = "data/raw/green_osm.gpkg"
+OUTPUT_PATH = "data/processed/green_clean.gpkg"
 
 
 def clean_data(gdf):
@@ -28,7 +28,7 @@ def main():
 
     print(f"Cleaned count: {len(gdf_clean)}")
 
-    gdf_clean.to_file(OUTPUT_PATH, driver="GeoJSON")
+    gdf_clean.to_file(OUTPUT_PATH, driver="GPKG")
     print(f"Saved cleaned data to {OUTPUT_PATH}")
 
 

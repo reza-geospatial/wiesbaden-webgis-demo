@@ -11,3 +11,7 @@ dist/
 build/
 *.log
 data/raw/*.zip
+*.pbf
+*.gpkg
+data/pbf/
+data/processed/

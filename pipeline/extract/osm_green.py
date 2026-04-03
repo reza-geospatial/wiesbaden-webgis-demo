@@ -57,8 +57,8 @@ def to_geodataframe(data):
 
 
 def save_data(gdf):
-    output_path = "data/raw/green_osm.geojson"
-    gdf.to_file(output_path, driver="GeoJSON")
+    output_path = "data/raw/green_osm.gpkg"
+    gdf.to_file(output_path, driver="GPKG")
     print(f"Saved {len(gdf)} features to {output_path}")
 
 
