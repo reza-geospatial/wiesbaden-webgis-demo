@@ -28,6 +28,8 @@
       }).addTo(map);
 
       let geojsonLayer;
+      let timeout;
+
       const zoom = map.getZoom();
 
       function style(feature) {
@@ -50,7 +52,6 @@
         layer.bringToFront();
 
         const props = layer.feature.properties;
-        //console.log(layer.feature.properties);
 
         let area = props.area ? (props.area / 10000).toFixed(2) : "N/A";
 
@@ -74,6 +75,7 @@
           mouseout: resetHighlight,
         });
       }
+
       // MAIN FUNC
       function loadData() {
         const bounds = map.getBounds();
@@ -82,7 +84,9 @@
         const miny = bounds.getSouth();
         const maxx = bounds.getEast();
         const maxy = bounds.getNorth();
+        const zoom = map.getZoom();
 
+        console.log("API CALL");
         // 2. gettting data from API
         fetch(
           `http://127.0.0.1:8000/green?minx=${minx}&miny=${miny}&maxx=${maxx}&maxy=${maxy}&zoom=${zoom}`,
@@ -103,9 +107,14 @@
 
       // initial load
       loadData();
-
+      function debouncedLoad() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          loadData();
+        }, 300); // delay
+      }
       // reload on map move
-      map.on("moveend", loadData);
+      map.on("moveend", debouncedLoad);
     </script>
   </body>
 </html>
