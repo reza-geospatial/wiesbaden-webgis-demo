@@ -1,5 +1,5 @@
 import geopandas as gpd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import os
 from dotenv import load_dotenv
 
@@ -9,11 +9,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DB_USER = "rmohammadi"
-DB_PASSWORD = "reza06450645" 
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "webgis_demo"
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
 
 TABLE_NAME = "green_areas"
 INPUT_PATH = "data/processed/green_clean.geojson"
@@ -44,6 +44,11 @@ def main():
         if_exists="replace",
         index=False
     )
+    with engine.connect() as conn:
+        conn.execute(text(f"""
+            ALTER TABLE {TABLE_NAME}
+            ADD COLUMN id SERIAL PRIMARY KEY;
+        """))
 
     print(f"Data written to table: {TABLE_NAME}")
 
