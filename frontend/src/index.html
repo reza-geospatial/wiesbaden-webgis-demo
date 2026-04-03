@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Wiesbaden WebGIS Demo</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+      #map {
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+      // 1. create map object
+      const map = L.map("map").setView([50.1, 8.25], 12);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap",
+      }).addTo(map);
+
+      // 2. gettting data from API
+      fetch("http://127.0.0.1:8000/green")
+        .then((res) => res.json())
+        .then((data) => {
+          let geojsonLayer;
+
+          function style(feature) {
+            return {
+              color: "green",
+              weight: 1,
+              fillOpacity: 0.4,
+            };
+          }
+
+          function highlightFeature(e) {
+            const layer = e.target;
+
+            layer.setStyle({
+              weight: 2,
+              color: "#00FF00",
+              fillOpacity: 0.7,
+            });
+
+            layer.bringToFront();
+
+            // popup on hover
+            const props = layer.feature.properties;
+
+            let area = props.area ? (props.area / 10000).toFixed(2) : "N/A"; // hectare
+            let content = `
+            <b>Green Area</b><br/>
+            ID: ${props.id}<br/>
+            Type: ${props.leisure || props.landuse}<br/>
+            Area: ${area} ha
+            `;
+            layer.bindPopup("Green Area").openPopup();
+          }
+
+          function resetHighlight(e) {
+            geojsonLayer.resetStyle(e.target);
+            e.target.closePopup();
+          }
+
+          function onEachFeature(feature, layer) {
+            layer.on({
+              mouseover: highlightFeature,
+              mouseout: resetHighlight,
+            });
+          }
+
+          geojsonLayer = L.geoJSON(data, {
+            style: style,
+            onEachFeature: onEachFeature,
+          }).addTo(map);
+
+          map.fitBounds(geojsonLayer.getBounds());
+        });
+    </script>
+  </body>
+</html>
