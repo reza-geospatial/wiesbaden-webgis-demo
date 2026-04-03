@@ -14,6 +14,24 @@
     </style>
   </head>
   <body>
+    <div
+      id="loading"
+      style="
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        font-size: 14px;
+        display: none;
+        z-index: 1000;
+      "
+    >
+      Loading...
+    </div>
     <div id="map"></div>
 
     <!-- Leaflet JS -->
@@ -115,7 +133,7 @@
         const maxy = bounds.getNorth();
         const zoom = map.getZoom();
 
-        console.log("API CALL");
+        document.getElementById("loading").style.display = "block";
         // 2. gettting data from API
         fetch(
           `http://127.0.0.1:8000/green?minx=${minx}&miny=${miny}&maxx=${maxx}&maxy=${maxy}&zoom=${zoom}`,
@@ -131,6 +149,13 @@
               style: style,
               onEachFeature: onEachFeature,
             }).addTo(map);
+          })
+          .catch((err) => {
+            console.error(err);
+          })
+          .finally(() => {
+            // hide loading AFTER fetch
+            document.getElementById("loading").style.display = "none";
           });
       }
 
