@@ -6,15 +6,14 @@ OUTPUT_PATH = "data/processed/green_clean.geojson"
 
 def clean_data(gdf):
     # del invalid geometry
-    gdf = gdf[gdf.geometry.notnull()]
+    gdf = gdf[gdf.geometry.notnull()].copy()
+    gdf["geometry"] = gdf["geometry"].buffer(0)
     gdf = gdf[gdf.is_valid]
 
     # Keep only Polygon
     gdf = gdf[gdf.geometry.type.isin(["Polygon", "MultiPolygon"])]
 
-    gdf["geometry"] = gdf["geometry"].buffer(0)
-
-    gdf = gdf[["geometry"]]
+    gdf = gdf[["geometry", "landuse", "leisure"]].fillna("unknown")
 
     return gdf
 

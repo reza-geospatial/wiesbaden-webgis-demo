@@ -44,10 +44,15 @@ def main():
         if_exists="replace",
         index=False
     )
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         conn.execute(text(f"""
             ALTER TABLE {TABLE_NAME}
-            ADD COLUMN id SERIAL PRIMARY KEY;
+            ADD COLUMN id SERIAL;
+        """))
+
+        conn.execute(text(f"""
+            ALTER TABLE {TABLE_NAME}
+            ADD PRIMARY KEY (id);
         """))
 
     print(f"Data written to table: {TABLE_NAME}")

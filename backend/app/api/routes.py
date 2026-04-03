@@ -35,6 +35,47 @@ def get_green_areas(limit: int = 100):
         LIMIT :limit
     """)
 
+    from fastapi import APIRouter
+from sqlalchemy import create_engine, text
+import os
+from dotenv import load_dotenv
+import json
+
+router = APIRouter()
+
+# =========================
+# DB CONFIG
+# =========================
+
+load_dotenv()
+
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
+
+engine = create_engine(
+    f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
+
+# =========================
+
+
+@router.get("/green")
+def get_green_areas(limit: int = 100):
+
+    query = text("""
+        SELECT 
+            id,
+            landuse,
+            leisure,
+            ST_AsGeoJSON(geometry) AS geometry,
+            ST_Area(ST_Transform(geometry, 25832)) AS area
+        FROM green_areas
+        LIMIT :limit
+    """)
+
     with engine.connect() as conn:
         result = conn.execute(query, {"limit": limit})
 
@@ -42,9 +83,12 @@ def get_green_areas(limit: int = 100):
         for row in result:
             features.append({
                 "type": "Feature",
-                "geometry": row.geometry,
+                "geometry": json.loads(row.geometry),
                 "properties": {
-                    "id": row.id
+                    "id": row.id,
+                    "landuse": row.landuse,
+                    "leisure": row.leisure,
+                    "area": row.area
                 }
             })
 
