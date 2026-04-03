@@ -29,6 +29,7 @@
 
       let geojsonLayer;
       let timeout;
+      let selectedLayer = null;
 
       const zoom = map.getZoom();
 
@@ -73,7 +74,35 @@
         layer.on({
           mouseover: highlightFeature,
           mouseout: resetHighlight,
+          click: selectFeature,
         });
+      }
+
+      function selectFeature(e) {
+        const layer = e.target;
+
+        if (selectedLayer) {
+          geojsonLayer.resetStyle(selectedLayer);
+        }
+        selectedLayer = layer;
+        // highlight
+        layer.setStyle({
+          color: "red",
+          weight: 3,
+          fillOpacity: 0.7,
+        });
+        layer.bringToFront();
+        const props = layer.feature.properties;
+
+        let area = props.area ? (props.area / 10000).toFixed(2) : "N/A";
+        let content = `
+            <b>Selected Area</b><br/>
+            ID: ${props.id || "N/A"}<br/>
+            Type: ${props.leisure || props.landuse || "unknown"}<br/>
+            Area: ${area} ha
+        `;
+
+        layer.bindPopup(content).openPopup();
       }
 
       // MAIN FUNC
