@@ -7,168 +7,38 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-    <style>
-      #map {
-        height: 100vh;
-      }
-    </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css" />
   </head>
+
   <body>
-    <div
-      id="loading"
-      style="
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: white;
-        padding: 8px 16px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        font-size: 14px;
-        display: none;
-        z-index: 1000;
-      "
-    >
-      Loading...
+    <!-- Loading box -->
+    <div id="loading">Loading...</div>
+
+    <!-- Layer controls -->
+    <div id="layer-controls" class="map-panel">
+      <h2>Layers</h2>
+      <label>
+        <input type="checkbox" id="toggle-green" checked />
+        Green areas
+      </label>
+      <label>
+        <input type="checkbox" id="toggle-buildings" checked />
+        Buildings
+      </label>
+      <label>
+        <input type="checkbox" id="toggle-transport" checked />
+        Transport
+      </label>
     </div>
+
+    <!-- Map -->
     <div id="map"></div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-    <script>
-      // 1. create map object
-      const map = L.map("map").setView([50.1, 8.25], 12);
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap",
-      }).addTo(map);
-
-      let geojsonLayer;
-      let timeout;
-      let selectedLayer = null;
-
-      const zoom = map.getZoom();
-
-      function style(feature) {
-        return {
-          color: "green",
-          weight: 1,
-          fillOpacity: 0.4,
-        };
-      }
-
-      function highlightFeature(e) {
-        const layer = e.target;
-
-        layer.setStyle({
-          weight: 2,
-          color: "#00FF00",
-          fillOpacity: 0.7,
-        });
-
-        layer.bringToFront();
-
-        const props = layer.feature.properties;
-
-        let area = props.area ? (props.area / 10000).toFixed(2) : "N/A";
-
-        let content = `
-              <b>Green Area</b><br/>
-              ID: ${props.id || "N/A"}<br/>
-              Type: ${props.leisure || props.landuse || "unknown"}<br/>
-              Area: ${area} ha
-            `;
-
-        layer.bindPopup(content).openPopup();
-      }
-
-      function resetHighlight(e) {
-        geojsonLayer.resetStyle(e.target);
-        e.target.closePopup();
-      }
-      function onEachFeature(feature, layer) {
-        layer.on({
-          mouseover: highlightFeature,
-          mouseout: resetHighlight,
-          click: selectFeature,
-        });
-      }
-
-      function selectFeature(e) {
-        const layer = e.target;
-
-        if (selectedLayer) {
-          geojsonLayer.resetStyle(selectedLayer);
-        }
-        selectedLayer = layer;
-        // highlight
-        layer.setStyle({
-          color: "red",
-          weight: 3,
-          fillOpacity: 0.7,
-        });
-        layer.bringToFront();
-        const props = layer.feature.properties;
-
-        let area = props.area ? (props.area / 10000).toFixed(2) : "N/A";
-        let content = `
-            <b>Selected Area</b><br/>
-            ID: ${props.id || "N/A"}<br/>
-            Type: ${props.leisure || props.landuse || "unknown"}<br/>
-            Area: ${area} ha
-        `;
-
-        layer.bindPopup(content).openPopup();
-      }
-
-      // MAIN FUNC
-      function loadData() {
-        const bounds = map.getBounds();
-
-        const minx = bounds.getWest();
-        const miny = bounds.getSouth();
-        const maxx = bounds.getEast();
-        const maxy = bounds.getNorth();
-        const zoom = map.getZoom();
-
-        document.getElementById("loading").style.display = "block";
-        // 2. gettting data from API
-        fetch(
-          `http://127.0.0.1:8000/green?minx=${minx}&miny=${miny}&maxx=${maxx}&maxy=${maxy}&zoom=${zoom}`,
-        )
-          .then((res) => res.json())
-          .then((data) => {
-            // remove old layer
-            if (geojsonLayer) {
-              map.removeLayer(geojsonLayer);
-            }
-            // add new
-            geojsonLayer = L.geoJSON(data, {
-              style: style,
-              onEachFeature: onEachFeature,
-            }).addTo(map);
-          })
-          .catch((err) => {
-            console.error(err);
-          })
-          .finally(() => {
-            // hide loading AFTER fetch
-            document.getElementById("loading").style.display = "none";
-          });
-      }
-
-      // initial load
-      loadData();
-      function debouncedLoad() {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          loadData();
-        }, 300); // delay
-      }
-      // reload on map move
-      map.on("moveend", debouncedLoad);
-    </script>
+    <!-- Custom JS -->
+    <script src="js/map.js"></script>
   </body>
 </html>
