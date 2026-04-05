@@ -35,10 +35,25 @@ function styleGreen() {
   };
 }
 
+function styleBuildings() {
+  return {
+    color: "#666",
+    weight: 0.5,
+    fillOpacity: 0.3,
+  };
+}
+
+function transportMarkerStyle() {
+  return {
+    radius: 4,
+    color: "blue",
+    fillOpacity: 0.8,
+  };
+}
 // =========================
-// INTERACTION (GREEN ONLY)
+// INTERACTION
 // =========================
-function highlightFeature(e) {
+function highlightGreen(e) {
   const layer = e.target;
 
   layer.setStyle({
@@ -58,11 +73,45 @@ function highlightFeature(e) {
     Type: ${props.leisure || props.landuse || "unknown"}<br/>
     Area: ${area} ha
   `;
+  layer.bindPopup(content).openPopup();
+}
+
+function highlightBuilding(e) {
+  const layer = e.target;
+
+  layer.setStyle({ color: "#222", weight: 2, fillOpacity: 0.6 });
+
+  layer.bringToFront();
+
+  const props = layer.feature.properties;
+
+  const content = `
+    <b>Building</b><br/>
+    ID: ${props.id || "N/A"}<br/>
+    Type: ${props.building || "unknown"}
+  `;
 
   layer.bindPopup(content).openPopup();
 }
 
-function resetHighlight(e) {
+function highlightTransport(e) {
+  const layer = e.target;
+
+  layer.setStyle({ radius: 6, color: "#003cff", fillOpacity: 1 });
+
+  const props = layer.feature.properties;
+
+  const content = `
+    <b>Transport</b><br/>
+    ID: ${props.id || "N/A"}<br/>
+    Highway: ${props.highway || "N/A"}
+    Railway: ${props.railway || "N/A"}
+  `;
+
+  layer.bindPopup(content).openPopup();
+}
+
+function resetGreenHighlight(e) {
   if (!greenLayer) {
     return;
   }
@@ -71,7 +120,21 @@ function resetHighlight(e) {
   e.target.closePopup();
 }
 
-function selectFeature(e) {
+function resetBuildingHighlight(e) {
+  if (!buildingsLayer) {
+    return;
+  }
+
+  buildingsLayer.resetStyle(e.target);
+  e.target.closePopup();
+}
+
+function resetTransportHighlight(e) {
+  e.target.setStyle(transportMarkerStyle());
+  e.target.closePopup();
+}
+
+function selectGreenFeature(e) {
   const layer = e.target;
 
   if (selectedLayer && greenLayer) {
@@ -99,11 +162,24 @@ function selectFeature(e) {
   layer.bindPopup(content).openPopup();
 }
 
-function onEachFeature(feature, layer) {
+function onEachGreenFeature(feature, layer) {
   layer.on({
-    mouseover: highlightFeature,
-    mouseout: resetHighlight,
-    click: selectFeature,
+    mouseover: highlightGreen,
+    mouseout: resetGreenHighlight,
+    click: selectGreenFeature,
+  });
+}
+function onEachBuildingFeature(feature, layer) {
+  layer.on({
+    mouseover: highlightBuilding,
+    mouseout: resetBuildingHighlight,
+  });
+}
+
+function onEachTransportFeature(feature, layer) {
+  layer.on({
+    mouseover: highlightTransport,
+    mouseout: resetTransportHighlight,
   });
 }
 
@@ -143,7 +219,7 @@ function updateGreenLayer(data) {
 
   greenLayer = L.geoJSON(data, {
     style: styleGreen,
-    onEachFeature: onEachFeature,
+    onEachFeature: onEachGreenFeature,
   }).addTo(map);
 }
 
@@ -151,11 +227,8 @@ function updateBuildingsLayer(data) {
   removeLayer("buildings");
 
   buildingsLayer = L.geoJSON(data, {
-    style: {
-      color: "#575050",
-      weight: 0.5,
-      fillOpacity: 0.3,
-    },
+    style: styleBuildings,
+    onEachFeature: onEachBuildingFeature,
   }).addTo(map);
 }
 
@@ -164,11 +237,8 @@ function updateTransportLayer(data) {
 
   transportLayer = L.geoJSON(data, {
     pointToLayer: (feature, latlng) =>
-      L.circleMarker(latlng, {
-        radius: 4,
-        color: "blue",
-        fillOpacity: 0.8,
-      }),
+      L.circleMarker(latlng, transportMarkerStyle()),
+    onEachFeature: onEachTransportFeature,
   }).addTo(map);
 }
 
@@ -245,7 +315,7 @@ function loadData() {
 // =========================
 function debouncedLoad() {
   clearTimeout(timeout);
-  timeout = setTimeout(loadData, 300);
+  timeout = setTimeout(loadData, 100);
 }
 
 // =========================
