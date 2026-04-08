@@ -3,10 +3,34 @@
 // =========================
 const map = L.map("map").setView([50.1, 8.25], 12);
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap",
-}).addTo(map);
+const osmLayer = L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    attribution: "© OpenStreetMap contributors",
+  },
+);
 
+const lightLayer = L.tileLayer(
+  "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+  {
+    attribution: "© OpenStreetMap contributors © CARTO",
+  },
+);
+
+const darkLayer = L.tileLayer(
+  "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+  {
+    attribution: "© OpenStreetMap contributors © CARTO",
+  },
+);
+
+const satelliteLayer = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  {
+    attribution: "Tiles © Esri",
+  },
+);
+osmLayer.addTo(map);
 // =========================
 // GLOBALS
 // =========================
@@ -23,6 +47,20 @@ const layerState = {
 };
 
 const baseUrl = "http://127.0.0.1:8000";
+
+const baseMaps = {
+  osm: osmLayer,
+  light: lightLayer,
+  dark: darkLayer,
+  satellite: satelliteLayer,
+};
+
+let activeBaseLayer = osmLayer;
+let activeBaseLayerKey = "osm";
+
+const basemapButtons = document.querySelectorAll(".basemap-option");
+const basemapToggle = document.getElementById("basemap-toggle");
+const basemapOptions = document.getElementById("basemap-options");
 
 // =========================
 // STYLES
@@ -53,6 +91,28 @@ function transportMarkerStyle() {
 // =========================
 // INTERACTION
 // =========================
+// Switching Basemap
+// L.control
+//   .layers(baseMaps, null, {
+//     collapsed: false,
+//     position: "bottomright",
+//   })
+//   .addTo(map);
+
+function setBaseLayer(layerKey) {
+  const nextLayer = baseMaps[layerKey];
+
+  if (!nextLayer || layerKey === activeBaseLayerKey) {
+    return;
+  }
+
+  map.removeLayer(activeBaseLayer);
+  nextLayer.addTo(map);
+
+  activeBaseLayer = nextLayer;
+  activeBaseLayerKey = layerKey;
+}
+
 function highlightGreen(e) {
   const layer = e.target;
 
@@ -309,7 +369,22 @@ function loadData() {
     setLoading(false);
   });
 }
+basemapButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const layerKey = button.dataset.basemap;
 
+    setBaseLayer(layerKey);
+
+    basemapButtons.forEach((item) => item.classList.remove("is-active"));
+    button.classList.add("is-active");
+
+    basemapOptions.classList.remove("is-open");
+  });
+});
+
+basemapToggle.addEventListener("click", () => {
+  basemapOptions.classList.toggle("is-open");
+});
 // =========================
 // DEBOUNCE
 // =========================

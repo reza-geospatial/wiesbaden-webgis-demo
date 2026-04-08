@@ -32,6 +32,36 @@
       </label>
     </div>
 
+    <div id="basemap-picker" class="map-panel basemap-picker">
+      <button id="basemap-toggle" type="button">Kartentypen</button>
+
+      <div id="basemap-options" class="basemap-options">
+        <button
+          class="basemap-option is-active"
+          data-basemap="osm"
+          type="button"
+        >
+          <span class="basemap-thumb thumb-osm"></span>
+          <span class="basemap-label">OpenStreetMap</span>
+        </button>
+
+        <button class="basemap-option" data-basemap="light" type="button">
+          <span class="basemap-thumb thumb-light"></span>
+          <span class="basemap-label">Light</span>
+        </button>
+
+        <button class="basemap-option" data-basemap="dark" type="button">
+          <span class="basemap-thumb thumb-dark"></span>
+          <span class="basemap-label">Dark</span>
+        </button>
+
+        <button class="basemap-option" data-basemap="satellite" type="button">
+          <span class="basemap-thumb thumb-satellite"></span>
+          <span class="basemap-label">Satellite</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Map -->
     <div id="map"></div>
 
