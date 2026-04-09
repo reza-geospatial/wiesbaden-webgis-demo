@@ -133,6 +133,34 @@ body {
   background-image: url("../assets/basemap-satellite.jpeg");
 }
 
+.leaflet-control-geocoder {
+  border: none !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  background: white;
+}
+
+.leaflet-control-geocoder form {
+  background: white;
+}
+
+.leaflet-control-geocoder input {
+  width: 240px;
+  padding: 10px 12px;
+  border: none;
+  font-size: 14px;
+  outline: none;
+}
+
+.leaflet-control-geocoder-icon {
+  margin-top: 8px;
+}
+
+.leaflet-control-geocoder-alternatives {
+  font-size: 14px;
+}
+
 /* LOADING BOX */
 #loading {
   position: absolute;

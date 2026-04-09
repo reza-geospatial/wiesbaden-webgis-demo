@@ -31,6 +31,13 @@ const satelliteLayer = L.tileLayer(
   },
 );
 osmLayer.addTo(map);
+
+const geocoder = L.Control.geocoder({
+  defaultMarkGeocode: false,
+  placeholder: "Search location...",
+  position: "topleft",
+}).addTo(map);
+
 // =========================
 // GLOBALS
 // =========================
@@ -39,6 +46,7 @@ let buildingsLayer;
 let transportLayer;
 let selectedLayer = null;
 let timeout;
+let searchMarker = null;
 
 const layerState = {
   green: true,
@@ -92,13 +100,6 @@ function transportMarkerStyle() {
 // INTERACTION
 // =========================
 // Switching Basemap
-// L.control
-//   .layers(baseMaps, null, {
-//     collapsed: false,
-//     position: "bottomright",
-//   })
-//   .addTo(map);
-
 function setBaseLayer(layerKey) {
   const nextLayer = baseMaps[layerKey];
 
@@ -418,6 +419,23 @@ bindLayerToggle("transport", "toggle-transport");
 // EVENTS
 // =========================
 map.on("moveend", debouncedLoad);
+
+geocoder.on("markgeocode", (event) => {
+  const bbox = event.geocode.bbox;
+  const center = event.geocode.center;
+  const name = event.geocode.name;
+
+  map.fitBounds(bbox);
+
+  if (searchMarker) {
+    map.removeLayer(searchMarker);
+  }
+
+  searchMarker = L.marker(center)
+    .addTo(map)
+    .bindPopup(`<b>Search Result</b><br/>${name}`)
+    .openPopup();
+});
 
 // initial load
 loadData();
