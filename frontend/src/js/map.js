@@ -32,12 +32,6 @@ const satelliteLayer = L.tileLayer(
 );
 osmLayer.addTo(map);
 
-const geocoder = L.Control.geocoder({
-  defaultMarkGeocode: false,
-  placeholder: "Search location...",
-  position: "topleft",
-}).addTo(map);
-
 // =========================
 // GLOBALS
 // =========================
@@ -69,6 +63,17 @@ let activeBaseLayerKey = "osm";
 const basemapButtons = document.querySelectorAll(".basemap-option");
 const basemapToggle = document.getElementById("basemap-toggle");
 const basemapOptions = document.getElementById("basemap-options");
+
+const germanyGeocoder = L.Control.Geocoder.nominatim({
+  geocodingQueryParams: { countrycodes: "de", limit: 5 },
+});
+
+const geocoder = L.Control.geocoder({
+  geocoder: germanyGeocoder,
+  defaultMarkGeocode: false,
+  placeholder: "Search location...",
+  position: "topleft",
+}).addTo(map);
 
 // =========================
 // STYLES
