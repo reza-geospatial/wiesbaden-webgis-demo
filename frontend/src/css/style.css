@@ -161,6 +161,52 @@ body {
   font-size: 14px;
 }
 
+.legend {
+  background: rgba(246, 238, 238, 0.96);
+  padding: 12px 14px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(184, 35, 35, 0.15);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.legend h4 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.legend div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.legend div:last-child {
+  margin-bottom: 0;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.legend-green {
+  background: green;
+}
+
+.legend-buildings {
+  background: #666;
+}
+
+.legend-transport {
+  background: blue;
+}
+
 /* LOADING BOX */
 #loading {
   position: absolute;

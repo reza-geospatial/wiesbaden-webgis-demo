@@ -41,6 +41,7 @@ let transportLayer;
 let selectedLayer = null;
 let timeout;
 let searchMarker = null;
+let legendContainer = null;
 
 const layerState = {
   green: true,
@@ -74,6 +75,22 @@ const geocoder = L.Control.geocoder({
   placeholder: "Search location...",
   position: "topleft",
 }).addTo(map);
+
+const legend = L.control({ position: "bottomleft" });
+
+legend.onAdd = function () {
+  const div = L.DomUtil.create("div", "info legend");
+  legendContainer = div;
+
+  div.innerHTML = renderLegend();
+
+  L.DomEvent.disableClickPropagation(div);
+  L.DomEvent.disableScrollPropagation(div);
+
+  return div;
+};
+
+legend.addTo(map);
 
 // =========================
 // STYLES
@@ -320,6 +337,38 @@ function fetchGeoJson(url, onSuccess, layerName) {
     });
 }
 
+function renderLegend() {
+  const items = [];
+
+  if (layerState.green) {
+    items.push(
+      `<div><span class="legend-swatch legend-green"></span> Green areas</div>`,
+    );
+  }
+
+  if (layerState.buildings) {
+    items.push(
+      `<div><span class="legend-swatch legend-buildings"></span> Buildings</div>`,
+    );
+  }
+
+  if (layerState.transport) {
+    items.push(`
+      <div><span class="legend-swatch legend-transport"></span> Transport</div>
+    `);
+  }
+
+  return `<h4>Legend</h4>${items.join("")}`;
+}
+
+function updateLegend() {
+  if (!legendContainer) {
+    return;
+  }
+
+  legendContainer.innerHTML = renderLegend();
+}
+
 // =========================
 // MAIN LOAD FUNCTION
 // =========================
@@ -411,7 +460,7 @@ function bindLayerToggle(layerName, inputId) {
     if (!layerState[layerName]) {
       removeLayer(layerName);
     }
-
+    updateLegend();
     loadData();
   });
 }
