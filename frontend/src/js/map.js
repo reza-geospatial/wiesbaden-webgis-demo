@@ -65,6 +65,14 @@ const basemapButtons = document.querySelectorAll(".basemap-option");
 const basemapToggle = document.getElementById("basemap-toggle");
 const basemapOptions = document.getElementById("basemap-options");
 
+const infoBasemap = document.getElementById("info-basemap");
+const infoZoom = document.getElementById("info-zoom");
+const infoLayers = document.getElementById("info-layers");
+const infoSelection = document.getElementById("info-selection");
+
+const infoToggle = document.getElementById("info-toggle");
+const infoPanelBody = document.getElementById("info-panel-body");
+
 const germanyGeocoder = L.Control.Geocoder.nominatim({
   geocodingQueryParams: { countrycodes: "de", limit: 5 },
 });
@@ -134,6 +142,7 @@ function setBaseLayer(layerKey) {
 
   activeBaseLayer = nextLayer;
   activeBaseLayerKey = layerKey;
+  updateInfoPanelStatus();
 }
 
 function highlightGreen(e) {
@@ -241,8 +250,13 @@ function selectGreenFeature(e) {
     Type: ${props.leisure || props.landuse || "unknown"}<br/>
     Area: ${area} ha
   `;
-
+  setInfoPanelContent("Green Area", [
+    { label: "ID", value: props.id || "N/A" },
+    { label: "Type", value: props.leisure || props.landuse || "unknown" },
+    { label: "Area", value: `${area} ha` },
+  ]);
   layer.bindPopup(content).openPopup();
+  updateInfoPanelSelection(content);
 }
 
 function onEachGreenFeature(feature, layer) {
@@ -256,6 +270,7 @@ function onEachBuildingFeature(feature, layer) {
   layer.on({
     mouseover: highlightBuilding,
     mouseout: resetBuildingHighlight,
+    click: selectBuildingFeature,
   });
 }
 
@@ -263,7 +278,18 @@ function onEachTransportFeature(feature, layer) {
   layer.on({
     mouseover: highlightTransport,
     mouseout: resetTransportHighlight,
+    click: selectTransportFeature,
   });
+}
+
+function updateInfoPanelStatus() {
+  infoBasemap.textContent = getBasemapLabel(activeBaseLayerKey);
+  infoZoom.textContent = map.getZoom();
+  infoLayers.textContent = getActiveLayersLabel();
+}
+
+function updateInfoPanelSelection(content) {
+  infoSelection.innerHTML = content;
 }
 
 // =========================
@@ -369,6 +395,88 @@ function updateLegend() {
   legendContainer.innerHTML = renderLegend();
 }
 
+function getBasemapLabel(layerKey) {
+  const labels = {
+    osm: "OpenStreetMap",
+    light: "Light",
+    dark: "Dark",
+    satellite: "Satellite",
+  };
+
+  return labels[layerKey] || "Unknown";
+}
+
+function getActiveLayersLabel() {
+  const activeLayers = [];
+
+  if (layerState.green) {
+    activeLayers.push("Green");
+  }
+
+  if (layerState.buildings) {
+    activeLayers.push("Buildings");
+  }
+
+  if (layerState.transport) {
+    activeLayers.push("Transport");
+  }
+
+  return activeLayers.length ? activeLayers.join(", ") : "None";
+}
+
+function setInfoPanelContent(title, rows) {
+  const content = rows
+    .map((row) => `<p><strong>${row.label}:</strong> ${row.value}</p>`)
+    .join("");
+
+  infoSelection.innerHTML = `
+    <div class="info-selection-card">
+      <h4>${title}</h4>
+      ${content}
+    </div>
+  `;
+}
+
+function selectBuildingFeature(e) {
+  const layer = e.target;
+  const props = layer.feature.properties;
+  const content = `
+    <b>Building</b><br/>
+    ID: ${props.id || "N/A"}<br/>
+    Type: ${props.building || "unknown"}
+  `;
+  layer.bindPopup(content).openPopup();
+
+  setInfoPanelContent("Building", [
+    { label: "ID", value: props.id || "N/A" },
+    { label: "Type", value: props.building || "unknown" },
+  ]);
+}
+
+function selectTransportFeature(e) {
+  const layer = e.target;
+  const props = layer.feature.properties;
+
+  const content = `
+    <b>Transport</b><br/>
+    ID: ${props.id || "N/A"}<br/>
+    Highway: ${props.highway || "N/A"}<br/>
+    Railway: ${props.railway || "N/A"}<br/>
+    Public transport: ${props.public_transport || "N/A"}
+  `;
+  layer.bindPopup(content).openPopup();
+
+  setInfoPanelContent("Transport", [
+    { label: "ID", value: props.id || "N/A" },
+    { label: "Highway", value: props.highway || "N/A" },
+    { label: "Railway", value: props.railway || "N/A" },
+    { label: "Public transport", value: props.public_transport || "N/A" },
+  ]);
+}
+
+function resetInfoPanelSelection() {
+  infoSelection.innerHTML = "Click a map feature to see details.";
+}
 // =========================
 // MAIN LOAD FUNCTION
 // =========================
@@ -445,7 +553,10 @@ basemapToggle.addEventListener("click", () => {
 // =========================
 function debouncedLoad() {
   clearTimeout(timeout);
-  timeout = setTimeout(loadData, 100);
+  timeout = setTimeout(() => {
+    updateInfoPanelStatus();
+    loadData();
+  }, 100);
 }
 
 // =========================
@@ -459,8 +570,10 @@ function bindLayerToggle(layerName, inputId) {
 
     if (!layerState[layerName]) {
       removeLayer(layerName);
+      resetInfoPanelSelection();
     }
     updateLegend();
+    updateInfoPanelStatus();
     loadData();
   });
 }
@@ -491,5 +604,14 @@ geocoder.on("markgeocode", (event) => {
     .openPopup();
 });
 
+infoToggle.addEventListener("click", () => {
+  infoPanelBody.classList.toggle("is-collapsed");
+
+  infoToggle.textContent = infoPanelBody.classList.contains("is-collapsed")
+    ? "+"
+    : "-";
+});
+
 // initial load
 loadData();
+updateInfoPanelStatus();

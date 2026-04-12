@@ -16,6 +16,32 @@
   </head>
 
   <body>
+    <div id="info-panel" class="map-panel info-panel">
+      <div class="info-panel-header">
+        <h2>Map Info</h2>
+        <button id="info-toggle" type="button" class="info-toggle">-</button>
+      </div>
+
+      <div id="info-panel-body" class="info-panel-body">
+        <div class="info-section">
+          <h3>Status</h3>
+          <p>
+            <strong>Basemap:</strong>
+            <span id="info-basemap">OpenStreetMap</span>
+          </p>
+          <p><strong>Zoom:</strong> <span id="info-zoom">12</span></p>
+          <p>
+            <strong>Active layers:</strong>
+            <span id="info-layers">Green, Buildings, Transport</span>
+          </p>
+        </div>
+        <div class="info-section">
+          <h3>Selection</h3>
+          <div id="info-selection">Click a map feature to see details.</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Loading box -->
     <div id="loading">Loading...</div>
 
@@ -46,7 +72,7 @@
           type="button"
         >
           <span class="basemap-thumb thumb-osm"></span>
-          <span class="basemap-label">OpenStreetMap</span>
+          <span class="basemap-label">OSM</span>
         </button>
 
         <button class="basemap-option" data-basemap="light" type="button">
