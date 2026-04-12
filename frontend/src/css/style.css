@@ -277,6 +277,36 @@ body {
   display: none;
 }
 
+.leaflet-control-geocoder-alternatives {
+  width: 320px;
+  margin-top: 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  background: white;
+}
+
+.leaflet-control-geocoder-alternatives li {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.leaflet-control-geocoder-alternatives li:last-child {
+  border-bottom: none;
+}
+
+.leaflet-control-geocoder-alternatives li:hover,
+.leaflet-control-geocoder-selected {
+  background: #f3f4f6;
+}
+
+.leaflet-control-geocoder-address-context {
+  color: #6b7280;
+  font-size: 12px;
+}
+
 /* LOADING BOX */
 #loading {
   position: absolute;

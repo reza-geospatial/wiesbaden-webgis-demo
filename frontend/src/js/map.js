@@ -73,15 +73,24 @@ const infoSelection = document.getElementById("info-selection");
 const infoToggle = document.getElementById("info-toggle");
 const infoPanelBody = document.getElementById("info-panel-body");
 
-const germanyGeocoder = L.Control.Geocoder.nominatim({
-  geocodingQueryParams: { countrycodes: "de", limit: 5 },
+const germanyPhotonGeocoder = L.Control.Geocoder.photon({
+  geocodingQueryParams: {
+    bbox: "5.53,47.23,15.38,54.96",
+    limit: 5,
+    lang: "de",
+  },
+  // htmlTemplate: (result) => result.name,
 });
 
 const geocoder = L.Control.geocoder({
-  geocoder: germanyGeocoder,
+  geocoder: germanyPhotonGeocoder,
   defaultMarkGeocode: false,
-  placeholder: "Search location...",
+  placeholder: "Search in Germany...",
   position: "topleft",
+  queryMinLength: 3,
+  suggestMinLength: 3,
+  suggestTimeout: 300,
+  showUniqueResult: false,
 }).addTo(map);
 
 const legend = L.control({ position: "bottomleft" });
