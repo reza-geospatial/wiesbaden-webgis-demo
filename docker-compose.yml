@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  db:
+    image: postgis/postgis:15-3.3
+    environment:
+      POSTGRES_DB: wiesbaden_gis
+      POSTGRES_USER: gisuser
+      POSTGRES_PASSWORD: gispassword
+    ports:
+      - "5432:5432"
+
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: gisuser
+      DB_PASSWORD: gispassword
+      DB_NAME: wiesbaden_gis

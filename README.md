@@ -1,6 +1,10 @@
-# Wiesbaden WebGIS Demo
+# WebGIS Demo
 
-A small WebGIS project for exploring urban green areas, buildings, and transport features around Wiesbaden.
+This WebGIS system allows municipalities and planning offices to visualize and analyze urban infrastructure — green spaces, buildings, and public transport — through an interactive web map. No expensive software licenses required.
+
+## 🎥 Demo
+
+[![Watch Demo](frontend/src/assets/WebGIS_Thumbnail.png)](https://streamable.com/qy8ptn)
 
 The project currently uses:
 
