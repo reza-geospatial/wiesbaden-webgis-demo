@@ -49,7 +49,7 @@ const layerState = {
   transport: true,
 };
 
-const baseUrl = "http://127.0.0.1:8000";
+const baseUrl = "https://wiesbaden-gis-live.onrender.com";
 
 const baseMaps = {
   osm: osmLayer,
